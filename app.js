@@ -1,5 +1,5 @@
 // app.js
-// Task 2: Fetch users, filter by company catchPhrase, and format output.
+// Task 2: Fetch users, filter by company (name + catchPhrase), and format output.
 // Requires Node.js 18+ (built-in fetch).
 
 const API_URL = "https://jsonplaceholder.typicode.com/users";
@@ -18,9 +18,11 @@ const fetchUsers = async () => {
   return response.json();
 };
 
-// 2. Filter users whose company catchPhrase contains "group" or "service"
-const filterUsersByCatchPhrase = (users) =>
-  users.filter(({ company: { catchPhrase } }) => KEYWORD_REGEX.test(catchPhrase));
+// 2. Filter users whose company name or catchPhrase contains "group" or "service"
+const filterUsers = (users) =>
+  users.filter(({ company: { name, catchPhrase } }) =>
+    KEYWORD_REGEX.test(`${name} ${catchPhrase}`)
+  );
 
 // 3. Transform into formatted strings using object destructuring
 const formatUsers = (users) =>
@@ -33,16 +35,11 @@ const formatUsers = (users) =>
 const main = async () => {
   try {
     const users = await fetchUsers();
-    const filteredUsers = filterUsersByCatchPhrase(users);
+    const filteredUsers = filterUsers(users);
     const formattedUsers = formatUsers(filteredUsers);
 
-    if (formattedUsers.length === 0) {
-      console.log('No users found with "group" or "service" in their catchPhrase.');
-      return;
-    }
-
-    console.log(`Found ${formattedUsers.length} matching user(s):\n`);
-    formattedUsers.forEach((line) => console.log(line));
+    console.log(`Matching users: ${formattedUsers.length}`);
+    console.log(formattedUsers);
   } catch (error) {
     console.error("Error:", error.message);
     process.exit(1);
